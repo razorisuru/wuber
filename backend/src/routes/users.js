@@ -1,11 +1,15 @@
 const express = require('express');
 const { query } = require('../db');
 const { requireAuth } = require('../middleware/auth');
+const { apiLimiter, writeLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
+// Apply rate limiting to all user routes
+router.use(apiLimiter);
+
 // POST /api/users – create or sync a user after Clerk auth
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', writeLimiter, requireAuth, async (req, res) => {
   const { email, role } = req.body;
   const clerkId = req.userId;
 

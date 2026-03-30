@@ -1,16 +1,20 @@
 const express = require('express');
 const { query } = require('../db');
 const { requireAuth } = require('../middleware/auth');
+const { apiLimiter, writeLimiter } = require('../middleware/rateLimiter');
 const { haversineDistance, calculateFare } = require('../utils/fare');
 const { findNearbyDrivers } = require('../redis');
 
 const router = express.Router();
 
+// Apply rate limiting to all ride routes
+router.use(apiLimiter);
+
 // All ride routes require authentication
 router.use(requireAuth);
 
 // POST /api/rides – create a new ride request
-router.post('/', async (req, res) => {
+router.post('/', writeLimiter, async (req, res) => {
   const { origin_lat, origin_lng, dest_lat, dest_lng } = req.body;
 
   if (origin_lat == null || origin_lng == null || dest_lat == null || dest_lng == null) {
