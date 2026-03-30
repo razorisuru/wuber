@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Wuber",
+    "slug": "wuber",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.wuber.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Wuber needs your location to find nearby drivers.",
+        "NSLocationAlwaysUsageDescription": "Wuber needs your location to track your ride."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.wuber.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-location",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Allow Wuber to access Face ID."
+        }
+      ]
+    ],
+    "scheme": "wuber",
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+  }
+}
