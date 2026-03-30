@@ -82,12 +82,18 @@ export function subscribeToDriverUpdates(onUpdate) {
 /**
  * Subscribe to ride lifecycle events (for riders).
  * @param {{ onAccepted: Function, onCompleted: Function }} handlers
+ * @returns {Function} unsubscribe function
  */
 export function subscribeToRideEvents({ onAccepted, onCompleted }) {
-  if (!socket) return;
+  if (!socket) return () => {};
 
   socket.on('ride-accepted', onAccepted);
   socket.on('ride-completed', onCompleted);
+
+  return () => {
+    socket?.off('ride-accepted', onAccepted);
+    socket?.off('ride-completed', onCompleted);
+  };
 }
 
 /**

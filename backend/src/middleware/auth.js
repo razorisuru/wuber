@@ -18,7 +18,7 @@ async function requireAuth(req, res, next) {
     const payload = await clerkClient.verifyToken(token);
 
     if (!payload || !payload.sub) {
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: 'Invalid token payload' });
     }
 
     req.userId = payload.sub;

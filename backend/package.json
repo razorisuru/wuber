@@ -14,7 +14,6 @@
     "socket.io": "^4.6.1",
     "ioredis": "^5.3.2",
     "pg": "^8.11.3",
-    "jsonwebtoken": "^9.0.2",
     "@clerk/clerk-sdk-node": "^4.13.13",
     "express-rate-limit": "^7.1.5"
   },

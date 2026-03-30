@@ -36,8 +36,12 @@ const riderSockets = new Map();  // riderId  -> socketId
 io.on('connection', (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
+  // Track the authenticated userId for this socket
+  let authenticatedUserId = null;
+
   // Client registers itself as rider or driver
   socket.on('register', ({ userId, role }) => {
+    authenticatedUserId = userId;
     if (role === 'driver') {
       driverSockets.set(userId, socket.id);
       socket.join(`driver:${userId}`);
@@ -50,6 +54,11 @@ io.on('connection', (socket) => {
 
   // Driver sends their location
   socket.on('driver-location', async ({ driverId, lat, lng }) => {
+    // Validate that the sender is the driver they claim to be
+    if (!authenticatedUserId || driverId !== authenticatedUserId) {
+      console.warn(`Blocked spoofed driver-location from socket ${socket.id}`);
+      return;
+    }
     try {
       await updateDriverLocation(driverId, lat, lng);
 

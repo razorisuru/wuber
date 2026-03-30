@@ -21,6 +21,14 @@ router.post('/', writeLimiter, async (req, res) => {
     return res.status(400).json({ error: 'origin_lat, origin_lng, dest_lat, dest_lng are required' });
   }
 
+  // Validate coordinate ranges
+  if (
+    origin_lat < -90 || origin_lat > 90 || dest_lat < -90 || dest_lat > 90 ||
+    origin_lng < -180 || origin_lng > 180 || dest_lng < -180 || dest_lng > 180
+  ) {
+    return res.status(400).json({ error: 'Invalid coordinate values' });
+  }
+
   try {
     const distance = haversineDistance(origin_lat, origin_lng, dest_lat, dest_lng);
     const fare = calculateFare(distance);
@@ -191,12 +199,19 @@ router.post('/:id/complete', async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Resolve the caller's DB user id
+    const callerResult = await query('SELECT id FROM users WHERE clerk_id = $1', [req.userId]);
+    if (callerResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const callerUserId = callerResult.rows[0].id;
+
     const result = await query(
       `UPDATE rides
        SET status = 'completed'
-       WHERE id = $1 AND status = 'accepted'
+       WHERE id = $1 AND status = 'accepted' AND driver_id = $2
        RETURNING *`,
-      [id]
+      [id, callerUserId]
     );
 
     if (result.rows.length === 0) {

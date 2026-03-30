@@ -54,17 +54,20 @@ export default function RiderMapScreen() {
     })();
 
     // Connect socket and subscribe to updates
+    let unsubDriverUpdates = () => {};
+    let unsubRideEvents = () => {};
+
     (async () => {
       const token = await getToken();
-      const socket = connectSocket(token);
+      connectSocket(token);
 
-      subscribeToDriverUpdates((drivers) => setNearbyDrivers(drivers));
-      subscribeToRideEvents({
+      unsubDriverUpdates = subscribeToDriverUpdates((drivers) => setNearbyDrivers(drivers));
+      unsubRideEvents = subscribeToRideEvents({
         onAccepted: (data) => {
           Alert.alert('Ride Accepted', `Driver is on the way! Ride ID: ${data.rideId}`);
           setCurrentRide((prev) => ({ ...prev, ...data, status: 'accepted' }));
         },
-        onCompleted: (data) => {
+        onCompleted: () => {
           Alert.alert('Ride Completed', 'Thanks for riding with Wuber!');
           setCurrentRide(null);
         },
@@ -73,6 +76,8 @@ export default function RiderMapScreen() {
 
     return () => {
       locationSub?.remove();
+      unsubDriverUpdates();
+      unsubRideEvents();
       disconnectSocket();
     };
   }, []);

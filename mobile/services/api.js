@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-expo';
+import { useEffect, useRef } from 'react';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -33,12 +34,23 @@ export function attachAuthInterceptor(getToken) {
 
 /**
  * Hook that wires up the auth interceptor for the current Clerk session.
- * Call once at the top of your app (e.g. in _layout.js) after ClerkProvider.
+ * Registers once and cleans up on unmount or when getToken changes.
  */
 export function useApiAuth() {
   const { getToken } = useAuth();
+  const interceptorId = useRef(null);
 
-  // Register the interceptor once; React will keep the same function reference
-  // across renders because Clerk memoises getToken.
-  attachAuthInterceptor(getToken);
+  useEffect(() => {
+    if (interceptorId.current !== null) {
+      api.interceptors.request.eject(interceptorId.current);
+    }
+    interceptorId.current = attachAuthInterceptor(getToken);
+
+    return () => {
+      if (interceptorId.current !== null) {
+        api.interceptors.request.eject(interceptorId.current);
+        interceptorId.current = null;
+      }
+    };
+  }, [getToken]);
 }
